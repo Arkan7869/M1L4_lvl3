@@ -1,6 +1,6 @@
 import aiohttp  # A library for asynchronous HTTP requests
 import random
-
+import asyncio
 class Pokemon:
     pokemons = {}
     # Object initialisation (constructor)
@@ -8,6 +8,10 @@ class Pokemon:
         self.pokemon_trainer = pokemon_trainer
         self.pokemon_number = random.randint(1, 1000)
         self.name = None
+        self.abilities = None
+        self.Cireng = None
+        self.power = random.randint(5, 15)
+        self.hp = random.randint (40, 70)
         if pokemon_trainer not in Pokemon.pokemons:
             Pokemon.pokemons[pokemon_trainer] = self
         else:
@@ -27,8 +31,92 @@ class Pokemon:
     async def info(self):
         # A method that returns information about the pokémon
         if not self.name:
-            self.name = await self.get_name()  # Retrieving a name if it has not yet been uploaded
-        return f"The name of your Pokémon: {self.name}"  # Returning the string with the Pokémon's name
+            self.name = await self.get_name()
+            self.abilites = await self.get_abilities() 
+            self.Cireng   = await self.get_Cireng ()                                                                     # Retrieving a name if it has not yet been uploaded
+        return f"The name of your Pokémon: {self.name} \nAbilites {self.abilities} \nCireng {self.Cireng} \nHP {self.hp} \nPOWER {self.power}" # Returning the string with the Pokémon's name
 
     async def show_img(self):
         # An asynchronous method to retrieve the URL of a pokémon image via PokeAPI
+        url = f'https://pokeapi.co/api/v2/pokemon/{self.pokemon_number}'
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url) as response:
+                if response.status == 200:
+                    data = await response.json()
+                    return data['sprites'] ['other'] ['showdown'] ['front_default']
+                else:
+                    return "Image not found"
+
+    async def get_abilities(self):
+        # An asynchronous method to retrieve the URL of a pokémon image via PokeAPI
+        url = f'https://pokeapi.co/api/v2/pokemon/{self.pokemon_number}'
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url) as response:
+                if response.status == 200:
+                    data = await response.json()
+                    return data['abilities']
+                else:
+                    return "Image not found"
+                
+                    
+    async def get_Cireng(self):
+        # An asynchronous method to retrieve the URL of a pokémon image via PokeAPI
+        url = f'https://pokeapi.co/api/v2/pokemon/{self.pokemon_number}'
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url) as response:
+                if response.status == 200:
+                    data = await response.json()
+                    return data['cries'] ['latest']
+                else:
+                    return "Image not found"
+                
+
+    async def attack(self, enemy):
+        if enemy.hp > self.power:
+            enemy.hp -= self.power
+            return f"Pertarungan @{self.pokemon_trainer} dengan @{enemy.pokemon_trainer}"
+        if isinstance(enemy, Wizard):  # Periksa apakah musuh adalah tipe data Penyihir (instance dari kelas Penyihir)
+            kesempatan = random.randint(1,5)
+            
+        if kesempatan == 1:
+            return "Pokemon penyihir menggunakan perisai dalam pertarungan"
+
+        else:
+            enemy.hp = 0
+            return f"@{self.pokemon_trainer} menang melawan @{enemy.pokemon_trainer}!"
+        
+    
+
+
+
+
+
+
+
+
+
+class Wizard(Pokemon):
+    async def attack(self, enemy):
+        return await super().attack(enemy)
+    
+class Fighter(Pokemon):
+     async def attack(self, enemy):
+        kekuatan_super = random.randint(5,15)
+        self.power += kekuatan_super
+        hasil = await super().attack(enemy)
+        self.power -= kekuatan_super
+        return hasil + f"\nPetarung menggunakan serangan super dengan kekuatan:{kekuatan_super} "
+async def main():  
+    wizard = Wizard("username1")
+    fighter = Fighter("username2")
+
+    print(await wizard.info())
+    print()
+    print(await fighter.info())
+    print()
+    print(await fighter.attack(wizard))
+
+
+if __name__ == '__main__':
+    asyncio.run(main())
+    
