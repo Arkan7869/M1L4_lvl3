@@ -117,6 +117,23 @@ async def attack(ctx):
     else:
         await ctx.send("Tentukan pengguna yang ingin Kalian serang dengan menyebut mereka.")  # Meminta untuk menyebutkan pengguna untuk menyerang
 
+@bot.command()
+async def info(ctx):
+    await ctx.send('''
+/about - tentang pokemon
+                  
+pokemon terkuat adalah pikachu''')
+
+@bot.command()
+async def feed(ctx):
+    author = ctx.author.name
+    if author in Pokemon.pokemons:
+        pokemon = Pokemon.pokemons[author]
+        result = await pokemon.feed()
+        await ctx.send(result)
+    else:
+        ctx.send("Belum ada pokemon coba !go")
+
 
 
 bot.run("token")
